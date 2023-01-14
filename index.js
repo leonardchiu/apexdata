@@ -11,8 +11,8 @@ const puppeteer = require('puppeteer');
     await page.setViewport({
     //width: page.viewport().width,
     //height: page.viewport().height
-    width: 1366,
-    height: 768
+    width: 1920,
+    height: 1080
   });
 
     await page.goto('https://online.apexpharma.com.sg/');
@@ -22,20 +22,37 @@ const puppeteer = require('puppeteer');
     await page.type("input[name='password']", '1313twl');
 
     await page.click("input[id='submit']");
-    
+
     await page.waitForSelector('#promo_popup');
-    //await page.click("//div[@id='promo_popup']//button[@id='alertclose']")
+    //await page.waitFor(2000);
 
-    const popup = await page.evaluate(() => {
-      window.open('https://online.apexpharma.com.sg', 'popup');
+    await page.goto('https://online.apexpharma.com.sg/products/');
+    
+
+    //This is working code for 1 page
+    const productTables = await page.evaluate(() => {
+      const elements = document.querySelectorAll('.productTable');
+      return Array.from(elements).map(element => {
+        // Extract the product-title, product-price, product-date, and product-description from each element
+        const title = element.querySelector('.product-title b').innerText;
+        const dateCheck = element.querySelector('.product-date b');
+        let date = '';
+        if (dateCheck && dateCheck.innerText) {
+          date = dateCheck.innerText;
+        };
+        const qty = element.querySelector('.product-description b').innerText;
+
+        console.log(dateCheck);
+  
+        return {
+          title,
+          date,
+          qty
+         };
+       });
     });
+  
+    console.log(productTables);
 
-    await popup.waitForNavigation();
-
-    await popup.close();
-
-    await page.waitForSelector('#main_navigation_wrap');
-    //await page.click("a[href='/products']")
-    await page.click('#main_navigation_wrap')
   }
 )();
